@@ -1,0 +1,9 @@
+0. Enter "Problem statement and input data" website
+
+1. Paste in Firefox developer console (F12)
+
+function download_file(url) {
+     window.open(url)
+}
+Array.from(document.querySelectorAll('a[href*="download"]')).map(x => x.getAttribute('href')).forEach(download_file)
+
