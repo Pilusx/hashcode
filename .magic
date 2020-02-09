@@ -7,3 +7,16 @@ function download_file(url) {
 }
 Array.from(document.querySelectorAll('a[href*="download"]')).map(x => x.getAttribute('href')).forEach(download_file)
 
+2. Copy files from downloads
+# TIME is upper bound for time since download.
+make scrape_downloads TASK=practice TIME=5
+
+3. Split files to directories
+make split TASK=practice
+
+4. Build solution
+# Modify eval.h and main.h
+make clean_build_test TASK=practice
+
+5. Load eval function to server
+make load_task TASK=practice
