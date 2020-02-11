@@ -23,7 +23,7 @@ int64_t real_eval() {
     for (int i = 0; i < K; i++) {
         IN2 >> pizza_indices[i];
     }
-
+	
     if(!(0 <= K && K <= N)) {
         std::cerr << "Invalid K" << std::endl;
         return -1;
@@ -33,7 +33,7 @@ int64_t real_eval() {
     for(auto& slice : pizza_indices) {
         score += pizza_sizes[slice];
     }
-
+	
     if(score > M) {
         std::cerr << "Invalid score" << std::endl;
         return -1;
