@@ -6,28 +6,27 @@
 void real_main() {
     // IN
     int M, N;
-    std::vector<int> sizes;
+    std::vector<int> pizza_sizes;
 
     IN >> M >> N;
-    sizes.resize(N);
+    pizza_sizes.resize(N);
     for (int i = 0; i < N; i++) {
-        IN >> sizes[i];
+        IN >> pizza_sizes[i];
     }
 
     // OUT
-    int d = 0;
-    std::vector<int> slices;
-
     long long int sum = 0;
+    std::vector<int> pizza_indices;
+
     for(int i = 0; i < N; i++) {
-        if(d + sizes[i] <= M) {
-            d += sizes[i];
-            slices.push_back(i);
+        if(sum + pizza_sizes[i] <= M) {
+            sum += pizza_sizes[i];
+            pizza_indices.push_back(i);
         }
     }
 
-    OUT << slices.size() << std::endl;
-    for(auto& i : slices) {
+    OUT << pizza_indices.size() << std::endl;
+    for(auto& i : pizza_indices) {
         OUT << i << " ";
     }
     OUT << std::endl;

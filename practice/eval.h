@@ -6,22 +6,22 @@
 int64_t real_eval() {
     // IN
     int M, N;
-    std::vector<int> sizes;
+    std::vector<int> pizza_sizes;
 
     // IN2
     int K;
-    std::vector<int> choice;
+    std::vector<int> pizza_indices;
 
     IN >> M >> N;
-    sizes.resize(N);
+    pizza_sizes.resize(N);
     for (int i = 0; i < N; i++) {
-        IN >> sizes[i];
+        IN >> pizza_sizes[i];
     }
 
     IN2 >> K;
-    choice.resize(K);
+    pizza_indices.resize(K);
     for (int i = 0; i < K; i++) {
-        IN2 >> choice[i];
+        IN2 >> pizza_indices[i];
     }
 
     if(!(0 <= K && K <= N)) {
@@ -29,15 +29,15 @@ int64_t real_eval() {
         return -1;
     }
 
-    long long int sum = 0;
-    for(auto& slice : choice) {
-        sum += sizes[slice];
+    long long int score = 0;
+    for(auto& slice : pizza_indices) {
+        score += pizza_sizes[slice];
     }
 
-    if(sum > M) {
-        std::cerr << "Invalid sum" << std::endl;
+    if(score > M) {
+        std::cerr << "Invalid score" << std::endl;
         return -1;
     }
 
-    return sum;
+    return score;
 }
