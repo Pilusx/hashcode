@@ -1,0 +1,8 @@
+.vscode
+out/
+.server
+Makefile
+*.sh
+eval
+main
+*.exe
