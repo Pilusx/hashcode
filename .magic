@@ -20,3 +20,8 @@ make clean_build_test TASK=practice
 
 5. Load eval function to server
 make load_task TASK=practice
+
+6. Run server
+node .server/node.js
+
+# Add additional field "info" to json files.
