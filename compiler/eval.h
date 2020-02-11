@@ -24,7 +24,7 @@ struct File {
     // std::string m_name;
     int m_compilation_time;
     int m_replication_time;
-    int m_min_replication_time = INT_MAX;
+    int m_min_finished_replication_time = INT_MAX;
     std::vector<FileName> m_dependencies;
 };
 
@@ -62,7 +62,7 @@ int64_t real_eval() {
         FileName filename;
         IN >> filename;
         auto& file = g_files[filename];
-        IN >> file.m_replication_time >> file.m_compilation_time;
+        IN >> file.m_compilation_time >> file.m_replication_time;
         IN >> dependencies_count;
         file.m_dependencies.resize(dependencies_count);
         for(auto& dependency : file.m_dependencies) {
@@ -93,26 +93,27 @@ int64_t real_eval() {
         auto& server = servers[step.m_server_id];
         auto& file = g_files[step.m_target_name];
 
-        int start_time = server.m_last_step_time;
-        
+        int compilation_start_time = server.m_last_step_time;
+
         for(auto& dependency : file.m_dependencies) {
-            if(!server.hasFile(step.m_target_name)) {
-                start_time = std::max(start_time, g_files[dependency].m_min_replication_time);
+            if(!server.hasFile(dependency)) {
+                compilation_start_time = std::max(compilation_start_time, g_files[dependency].m_min_finished_replication_time);
             }
         }
 
-        if(start_time == INT_MAX) {
+        if(compilation_start_time == INT_MAX) {
             std::cerr << "Broken dependency" << std::endl;
             return -1;
         }
 
-        int finished_compilation_time = server.m_last_step_time = start_time + file.m_compilation_time;
-        file.m_min_replication_time = std::min(file.m_min_replication_time, server.m_last_step_time + file.m_replication_time);
+        int finished_compilation_time = server.m_last_step_time = compilation_start_time + file.m_compilation_time;
+        file.m_min_finished_replication_time = std::min(file.m_min_finished_replication_time, finished_compilation_time + file.m_replication_time);
         server.ownFile(step.m_target_name);
         // Eval score
         auto it = g_targets.find(step.m_target_name);
         if(it != g_targets.end()) {
             int deadline = it->second.m_deadline;
+
             if(finished_compilation_time <= deadline) {
                 int points = deadline - finished_compilation_time + it->second.m_goal_points;
                 score += points;
