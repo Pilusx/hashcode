@@ -1,67 +1,18 @@
-#include <climits>
-#include <iostream>
-#include <map>
-#include <set>
-#include <queue>
-#include <vector>
+#include "structs.h"
 
 #include "io.h"
-
-typedef int ServerId;
-typedef std::string FileName;
-
-struct File;
-struct Target;
-struct Server;
-struct CompilationStep;
-
-std::map<FileName, File> g_files;
-std::map<FileName, Target> g_targets;
-std::vector<Server> g_servers;
-std::vector<CompilationStep> g_steps;
-
-struct File {
-    // std::string m_name;
-    int m_compilation_time;
-    int m_replication_time;
-    int m_min_finished_replication_time = INT_MAX;
-    std::vector<FileName> m_dependencies;
-};
-
-struct Target {
-    // std::string m_name;
-    int m_deadline;
-    int m_goal_points;
-};
-
-struct CompilationStep {
-    FileName m_target_name;
-    ServerId m_server_id;
-    int m_finish_time;
-};
-
-struct Server {
-    std::set<FileName> m_owned_files;
-    int m_last_step_time = 0;
-    bool hasFile(const FileName& file) {
-        return m_owned_files.find(file) != m_owned_files.end();
-    }
-    void ownFile(const FileName& file) {
-        m_owned_files.insert(file);
-    }
-};
 
 int64_t real_eval() {
     // IN
     int C, T, S;
 
     IN >> C >> T >> S;
-    g_servers.resize(S);
     for(int i = 0; i < C; i++) {
         int dependencies_count;
         FileName filename;
         IN >> filename;
         auto& file = g_files[filename];
+		file.m_name = filename;
         IN >> file.m_compilation_time >> file.m_replication_time;
         IN >> dependencies_count;
         file.m_dependencies.resize(dependencies_count);
@@ -83,14 +34,12 @@ int64_t real_eval() {
     g_steps.resize(compilation_steps_count);
 
     long long int score = 0;
-    std::vector<Server> servers;
-    servers.resize(S);  
-
+	g_servers.resize(S);
     for(int i = 0; i < compilation_steps_count; i++) {
         auto& step = g_steps[i];
         IN2 >> step.m_target_name >> step.m_server_id;
 
-        auto& server = servers[step.m_server_id];
+        auto& server = g_servers[step.m_server_id];
         auto& file = g_files[step.m_target_name];
 
         int compilation_start_time = server.m_last_step_time;
