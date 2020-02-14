@@ -9,15 +9,16 @@ int64_t real_eval() {
     IN >> C >> T >> S;
     for(int i = 0; i < C; i++) {
         int dependencies_count;
-        FileName filename;
+        FileName filename, targetname;
         IN >> filename;
         auto& file = g_files[filename];
 		file.m_name = filename;
         IN >> file.m_compilation_time >> file.m_replication_time;
         IN >> dependencies_count;
-        file.m_dependencies.resize(dependencies_count);
-        for(auto& dependency : file.m_dependencies) {
-            IN >> dependency;
+		
+        for(int i = 0; i < dependencies_count; i++) {
+            IN >> targetname;
+            file.m_dependencies.insert(targetname);
         }
     }
 
