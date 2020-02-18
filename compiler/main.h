@@ -198,7 +198,7 @@ void print(std::vector<File> list)
 {
 	for (auto f : list)
 	{
-		std::cerr << f.m_name << " " << f.m_dependencies.size() << " " << f.m_compilation_time + f.m_replication_time << std::endl;
+		std::cout << f.m_name << " " << f.m_dependencies.size() << " " << f.m_compilation_time + f.m_replication_time << std::endl;
 	}
 }
 
@@ -223,7 +223,7 @@ void BFS(File &file, std::vector<File> &dependencies, bool flag)
 			BFS(f, dependencies, false);
 		}
 	}
-	// std::cerr<<dependencies.size()<<std::endl;
+	// std::cout<<dependencies.size()<<std::endl;
 }
 
 void BFS(File &file, std::set<FileName> &dependencies, bool flag)
@@ -239,7 +239,7 @@ void BFS(File &file, std::set<FileName> &dependencies, bool flag)
 			BFS(f, dependencies, false);
 		}
 	}
-	// std::cerr<<dependencies.size()<<std::endl;
+	// std::cout<<dependencies.size()<<std::endl;
 }
 
 void BFS(File &file, std::vector<FileName> &dependencies, bool flag)
@@ -254,25 +254,25 @@ void BFS(File &file, std::vector<FileName> &dependencies, bool flag)
 			BFS(f, dependencies, false);
 		}
 	}
-	// std::cerr<<dependencies.size()<<std::endl;
+	// std::cout<<dependencies.size()<<std::endl;
 }
 
 void calc_dependencies_count(std::map<FileName, int> &dependencies_count, std::vector<FileName> not_unique_dependencies)
 {
-	// std::cerr<<not_unique_dependencies.size()<<std::endl;
+	// std::cout<<not_unique_dependencies.size()<<std::endl;
 	for (auto &dependency : not_unique_dependencies)
 	{
 		dependencies_count[dependency]++;
-		// std::cerr<<dependencies_count[dependency]<<std::endl;
+		// std::cout<<dependencies_count[dependency]<<std::endl;
 	}
 }
 
 int BFS_calcCompilTime(File &file, int compilTime = 0)
 {
-	// std::cerr<<file.m_name<<" "<<file.m_compilation_time<<std::endl;
+	// std::cout<<file.m_name<<" "<<file.m_compilation_time<<std::endl;
 	if (file.m_dependencies.size() == 0)
 	{
-		// std::cerrk<<"return: "<<file.m_name<<" "<<file.m_compilation_time<<std::endl;
+		// std::coutk<<"return: "<<file.m_name<<" "<<file.m_compilation_time<<std::endl;
 		return file.m_compilation_time;
 	}
 	compilTime = 0;
@@ -281,7 +281,7 @@ int BFS_calcCompilTime(File &file, int compilTime = 0)
 		File &f = g_files[dependency];
 		compilTime = compilTime + BFS_calcCompilTime(f, compilTime);
 	}
-	// std::cerr<<file.m_name<<" "<<compilTime<< " "<<file.m_compilation_time<<std::endl;
+	// std::cout<<file.m_name<<" "<<compilTime<< " "<<file.m_compilation_time<<std::endl;
 	compilTime = compilTime + file.m_compilation_time;
 
 	return compilTime;
@@ -297,7 +297,7 @@ void fillFileDependencies(std::map<FileName, File> &g_files, std::unordered_map<
 		if (g_targets.count(file.m_name))
 		{
 			g_targets[file.m_name].m_dependencies = file.m_dependencies;
-			// std::cerr<<g_targets[file.m_name].m_dependencies.size()<<std::endl;
+			// std::cout<<g_targets[file.m_name].m_dependencies.size()<<std::endl;
 		}
 	}
 }
@@ -312,7 +312,7 @@ void fillFileDependencies(std::map<FileName, File> &g_files, std::map<FileName, 
 		if (g_targets.count(file.m_name))
 		{
 			g_targets[file.m_name].m_dependencies = file.m_dependencies;
-			// std::cerr<<g_targets[file.m_name].m_dependencies.size()<<std::endl;
+			// std::cout<<g_targets[file.m_name].m_dependencies.size()<<std::endl;
 		}
 	}
 }
@@ -325,7 +325,7 @@ void fillFileDependencies(std::map<FileName, File> &g_files, std::vector<File> &
 		if (g_files.count(f.m_name))
 		{
 			f.m_dependencies = g_files[f.m_name].m_dependencies;
-			// std::cerr<<g_targets[file.m_name].m_dependencies.size()<<std::endl;
+			// std::cout<<g_targets[file.m_name].m_dependencies.size()<<std::endl;
 		}
 	}
 }
@@ -365,7 +365,7 @@ void topologicalSort(std::vector<File> &topologicalOrder, std::vector<File> &lis
 {
 	//topological sort
 	int count = 0;
-	std::cerr << "Files size: " << g_files.size() << std::endl;
+	std::cout << "Files size: " << g_files.size() << std::endl;
 	int num_of_files = list_of_files.size();
 	while (count != num_of_files)
 	{
@@ -404,8 +404,8 @@ void topologicalSort(std::vector<File> &topologicalOrder, std::vector<File> &lis
 			else
 			{
 				++f;
-				// std::cerr<<"f: "<<f.m_name<<std::endl;
-				// std::cerr<<"deps#: "<<file.m_dependencies.size()<<std::endl;
+				// std::cout<<"f: "<<f.m_name<<std::endl;
+				// std::cout<<"deps#: "<<file.m_dependencies.size()<<std::endl;
 			}
 		}
 	}
@@ -423,7 +423,7 @@ void removeUnreachable(std::map<FileName, Target> &g_targets, std::map<FileName,
 		file.m_replication_time = copy_g_files[target.m_name].m_replication_time;
 		file.m_compilation_time = copy_g_files[target.m_name].m_compilation_time;
 		long long int totCompTime = BFS_calcCompilTime(file, 0);
-		// std::cerr << itt->first << " Deadline: " << target.m_deadline << "Tot comp time: " << totCompTime << std::endl;
+		// std::cout << itt->first << " Deadline: " << target.m_deadline << "Tot comp time: " << totCompTime << std::endl;
 		if (target.m_deadline < totCompTime)
 		{
 			g_targets.erase(itt++);
@@ -451,7 +451,7 @@ void uniqueDependencies(std::set<FileName> &dependencies, std::map<FileName, Fil
 void removeUselessDependencies(std::set<FileName> &dependencies, std::map<FileName, File> &g_files, std::map<FileName, Target> g_targets)
 {
 	std::map<FileName, File>::iterator it;
-	std::cerr << "Files: " << g_files.size() << std::endl;
+	std::cout << "Files: " << g_files.size() << std::endl;
 	for (it = g_files.begin(); it != g_files.end();)
 	{
 		File &file = it->second;
@@ -463,7 +463,7 @@ void removeUselessDependencies(std::set<FileName> &dependencies, std::map<FileNa
 		{
 			++it;
 		}
-		// std::cerr<<"after Files: "<<g_files.size()<<std::endl;
+		// std::cout<<"after Files: "<<g_files.size()<<std::endl;
 	}
 }
 
@@ -480,7 +480,7 @@ void notUniqueDependencies(std::vector<FileName> &not_unique_dependencies, std::
 	}
 }
 
-void createVectorOfVectorsOfTargetsDependencies(std::vector<std::vector<File>> fin_target_dependencies, std::map<FileName, Target> g_targets, std::map<FileName, File> copy_g_files)
+void createVectorOfVectorsOfTargetsDependencies(std::vector<std::vector<File>>& fin_target_dependencies, std::map<FileName, Target> g_targets, std::map<FileName, File> copy_g_files)
 {
 	for (auto &target : g_targets)
 	{
@@ -490,7 +490,7 @@ void createVectorOfVectorsOfTargetsDependencies(std::vector<std::vector<File>> f
 		file.m_replication_time = copy_g_files[target.second.m_name].m_replication_time;
 		file.m_compilation_time = copy_g_files[target.second.m_name].m_compilation_time;
 		long long int totCompTime = BFS_calcCompilTime(file, 0);
-		std::cerr << target.first << " Deadline: " << target.second.m_deadline << "Tot comp time: " << totCompTime << std::endl;
+		std::cout << target.first << " Deadline: " << target.second.m_deadline << "Tot comp time: " << totCompTime << std::endl;
 		if (totCompTime <= target.second.m_deadline)
 		{
 			std::vector<File> target_dependencies;
@@ -539,25 +539,25 @@ void real_main()
 	//add dependencies to targets (Cause they didn't have while setting up)
 	fillFileDependencies(copy_g_files, g_targets);
 
-	std::cerr << "Has been set up" << std::endl;
+	std::cout << "Has been set up" << std::endl;
 
 	// remove targets which are impossible to complete for 1 server
-	std::cerr << "Before removing unreachable Targets size: " << g_targets.size() << std::endl;
+	std::cout << "Before removing unreachable Targets size: " << g_targets.size() << std::endl;
 
-	removeUnreachable(g_targets, copy_g_files);
+	// removeUnreachable(g_targets, copy_g_files);
 
-	std::cerr << "After removing unreachable Targets size: " << g_targets.size() << std::endl;
+	std::cout << "After removing unreachable Targets size: " << g_targets.size() << std::endl;
 
 	//BFS
 	//unique dependencies of targets
 	std::set<FileName> dependencies;
 	uniqueDependencies(dependencies, copy_g_files);
 
-	std::cerr << "Dependencies: " << dependencies.size() << std::endl;
+	std::cout << "Dependencies: " << dependencies.size() << std::endl;
 
 	//remove useless dependencies (aren't part of targets)
 	removeUselessDependencies(dependencies, g_files, g_targets);
-	std::cerr << "after " << g_files.size() << std::endl;
+	std::cout << "after removal of useless dependencies" << g_files.size() << std::endl;
 
 	//not unique dependencies
 	std::vector<FileName> not_unique_dependencies;
@@ -590,14 +590,14 @@ void real_main()
 		fin_topologicalOrder.push_back(loc_topologicalOrder);
 		i++;
 	}
-	// std::cerr << "count: " << count << std::endl;
-	// std::cerr << "files: " << g_files.size() << std::endl;
-	std::cerr << "finished" << fin_topologicalOrder.size() << std::endl;
+	// std::cout << "count: " << count << std::endl;
+	// std::cout << "files: " << g_files.size() << std::endl;
+	std::cout << "finished" << fin_topologicalOrder.size() << std::endl;
 
 	// //topological sort
 	// std::vector<File> topologicalOrder;
 	// int count = 0;
-	// std::cerr << "Files size: " << g_files.size() << std::endl;
+	// std::cout << "Files size: " << g_files.size() << std::endl;
 	// int num_of_files = g_files.size();
 	// while (count != num_of_files)
 	// {
@@ -632,14 +632,14 @@ void real_main()
 	// 		}
 	// 		else
 	// 		{
-	// 			// std::cerr<<"f: "<<fileName<<std::endl;
-	// 			// std::cerr<<"deps#: "<<file.m_dependencies.size()<<std::endl;
+	// 			// std::cout<<"f: "<<fileName<<std::endl;
+	// 			// std::cout<<"deps#: "<<file.m_dependencies.size()<<std::endl;
 	// 		}
 	// 	}
-	// 	std::cerr << "count: " << count << std::endl;
-	// 	std::cerr << "files: " << g_files.size() << std::endl;
+	// 	std::cout << "count: " << count << std::endl;
+	// 	std::cout << "files: " << g_files.size() << std::endl;
 	// }
-	// std::cerr << "finished" << std::endl;
+	// std::cout << "finished" << std::endl;
 
 	fillFileDependencies(copy_g_files, topologicalOrder);
 	std::cout << "refilled" << std::endl;
