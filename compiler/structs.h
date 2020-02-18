@@ -24,21 +24,22 @@ struct File
     int m_replication_time;
     int m_min_finished_replication_time = INT_MAX;
     std::vector<FileName> m_dependencies;
+    std::set<FileName> m_dependencies_set;
 
-    bool operator <(const File & file) const
-	{
-		return m_name < file.m_name;
-	}
+    bool operator<(const File &file) 
+    {
+        return m_name < file.m_name;
+    }
 
-    bool operator ==(const File & file) const
-	{
-		return m_name == file.m_name;
-	}
+    bool operator==(const File &file) 
+    {
+        return m_name == file.m_name;
+    }
 
-     bool operator >(const File & file) const
-	{
-		return m_name > file.m_name;
-	}
+    bool operator>(const File &file) 
+    {
+        return m_name > file.m_name;
+    }
 };
 
 struct Target

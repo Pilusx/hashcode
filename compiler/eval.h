@@ -18,7 +18,8 @@ int64_t real_eval() {
 		
         for(int i = 0; i < dependencies_count; i++) {
             IN >> targetname;
-            file.m_dependencies.insert(targetname);
+            file.m_dependencies_set.insert(targetname);
+            // file.m_dependencies.insert(targetname);
         }
     }
 

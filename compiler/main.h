@@ -33,37 +33,36 @@
 // }
 std::map<FileName, int> dependencies_count;
 
+// for f mainly
 int Cost(const std::vector<File> &v)
 {
 
 	double res = 0;
 
-	// 1 sol
+	// 1 sol f.) 844k
 	// for (File f : v)
 	// {
 	// 	res = res + f.m_compilation_time;
 	// }
 	// return res;
 
-	// 2 sol
-	// for (File f : v)
-	// {
-	// 	res = res + f.m_replication_time;
-	// }
-	// return res;
-
-	//3 sol
-	double w1 = 5;
-		for (File f : v)
+	// 2 sol f.) 844k (a < b) d.) 33k (Cost(a)>Cost(b))
+	for (File f : v)
 	{
-		double dep_count1 = dependencies_count[f.m_name],
-		   compil_time1 = f.m_compilation_time,
-		   repl_time1 = f.m_replication_time;
-		res = res + (dep_count1 / (w1*compil_time1 + repl_time1));
+		res = res + f.m_replication_time;
 	}
 	return res;
 
-
+	//3 sol  f.) 844k
+	// double w1 = 5;
+	// 	for (File f : v)
+	// {
+	// 	double dep_count1 = dependencies_count[f.m_name],
+	// 	   compil_time1 = f.m_compilation_time,
+	// 	   repl_time1 = f.m_replication_time;
+	// 	res = res + (dep_count1 / (w1*compil_time1 + repl_time1));
+	// }
+	// return res;
 
 	//2 sol
 	return v.size();
@@ -72,6 +71,7 @@ int Cost(const std::vector<File> &v)
 void print_queue(std::vector<std::vector<File>> q, int S)
 {
 
+	//improves e.g. d.)
 	std::sort(q.begin(), q.end(),
 			  [](const std::vector<File> &a, const std::vector<File> &b) {
 				  return Cost(a) > Cost(b);
@@ -336,7 +336,6 @@ bool compareInterval(File f1, File f2)
 	return (f1.m_compilation_time < f2.m_compilation_time);
 }
 
-
 bool compareInterval_count(File f1, File f2)
 {
 	double w1 = 5;
@@ -436,6 +435,71 @@ void removeUnreachable(std::map<FileName, Target> &g_targets, std::map<FileName,
 	}
 }
 
+void uniqueDependencies(std::set<FileName> &dependencies, std::map<FileName, File> copy_g_files)
+{
+	for (auto &target : g_targets)
+	{
+		File file;
+		file.m_name = target.second.m_name;
+		file.m_dependencies = target.second.m_dependencies;
+		file.m_replication_time = copy_g_files[target.second.m_name].m_replication_time;
+		file.m_compilation_time = copy_g_files[target.second.m_name].m_compilation_time;
+		BFS(file, dependencies, true);
+	}
+}
+
+void removeUselessDependencies(std::set<FileName> &dependencies, std::map<FileName, File> &g_files, std::map<FileName, Target> g_targets)
+{
+	std::map<FileName, File>::iterator it;
+	std::cerr << "Files: " << g_files.size() << std::endl;
+	for (it = g_files.begin(); it != g_files.end();)
+	{
+		File &file = it->second;
+		if (!dependencies.count(file.m_name) && !g_targets.count(file.m_name))
+		{
+			it = g_files.erase(it++);
+		}
+		else
+		{
+			++it;
+		}
+		// std::cerr<<"after Files: "<<g_files.size()<<std::endl;
+	}
+}
+
+void notUniqueDependencies(std::vector<FileName> &not_unique_dependencies, std::map<FileName, Target> g_targets, std::map<FileName, File> copy_g_files)
+{
+	for (auto &target : g_targets)
+	{
+		File file;
+		file.m_name = target.second.m_name;
+		file.m_dependencies = target.second.m_dependencies;
+		file.m_replication_time = copy_g_files[target.second.m_name].m_replication_time;
+		file.m_compilation_time = copy_g_files[target.second.m_name].m_compilation_time;
+		BFS(file, not_unique_dependencies, true);
+	}
+}
+
+void createVectorOfVectorsOfTargetsDependencies(std::vector<std::vector<File>> fin_target_dependencies, std::map<FileName, Target> g_targets, std::map<FileName, File> copy_g_files)
+{
+	for (auto &target : g_targets)
+	{
+		File file;
+		file.m_name = target.second.m_name;
+		file.m_dependencies = target.second.m_dependencies;
+		file.m_replication_time = copy_g_files[target.second.m_name].m_replication_time;
+		file.m_compilation_time = copy_g_files[target.second.m_name].m_compilation_time;
+		long long int totCompTime = BFS_calcCompilTime(file, 0);
+		std::cerr << target.first << " Deadline: " << target.second.m_deadline << "Tot comp time: " << totCompTime << std::endl;
+		if (totCompTime <= target.second.m_deadline)
+		{
+			std::vector<File> target_dependencies;
+			BFS(file, target_dependencies, true);
+			target_dependencies.push_back(file);
+			fin_target_dependencies.push_back(target_dependencies);
+		}
+	}
+}
 void real_main()
 {
 
@@ -477,7 +541,7 @@ void real_main()
 
 	std::cerr << "Has been set up" << std::endl;
 
-	// remove targets which are impossible to complete for 1 server (all would have to be removed :/ )
+	// remove targets which are impossible to complete for 1 server
 	std::cerr << "Before removing unreachable Targets size: " << g_targets.size() << std::endl;
 
 	removeUnreachable(g_targets, copy_g_files);
@@ -487,69 +551,23 @@ void real_main()
 	//BFS
 	//unique dependencies of targets
 	std::set<FileName> dependencies;
+	uniqueDependencies(dependencies, copy_g_files);
 
-	for (auto &target : g_targets)
-	{
-		File file;
-		file.m_name = target.second.m_name;
-		file.m_dependencies = target.second.m_dependencies;
-		file.m_replication_time = copy_g_files[target.second.m_name].m_replication_time;
-		file.m_compilation_time = copy_g_files[target.second.m_name].m_compilation_time;
-		BFS(file, dependencies, true);
-	}
 	std::cerr << "Dependencies: " << dependencies.size() << std::endl;
 
 	//remove useless dependencies (aren't part of targets)
-	std::map<FileName, File>::iterator it;
-	std::cerr << "Files: " << g_files.size() << std::endl;
-	for (it = g_files.begin(); it != g_files.end();)
-	{
-		File &file = it->second;
-		if (!dependencies.count(file.m_name) && !g_targets.count(file.m_name))
-		{
-			it = g_files.erase(it++);
-		}
-		else
-		{
-			++it;
-		}
-		// std::cerr<<"after Files: "<<g_files.size()<<std::endl;
-	}
+	removeUselessDependencies(dependencies, g_files, g_targets);
 	std::cerr << "after " << g_files.size() << std::endl;
 
 	//not unique dependencies
-
 	std::vector<FileName> not_unique_dependencies;
-	for (auto &target : g_targets)
-	{
-		File file;
-		file.m_name = target.second.m_name;
-		file.m_dependencies = target.second.m_dependencies;
-		file.m_replication_time = copy_g_files[target.second.m_name].m_replication_time;
-		file.m_compilation_time = copy_g_files[target.second.m_name].m_compilation_time;
-		BFS(file, not_unique_dependencies, true);
-	}
+	notUniqueDependencies(not_unique_dependencies, g_targets, copy_g_files);
+
 	calc_dependencies_count(dependencies_count, not_unique_dependencies);
 
 	// std::vector<File> target_dependencies;
 	std::vector<std::vector<File>> fin_target_dependencies;
-	for (auto &target : g_targets)
-	{
-		File file;
-		file.m_name = target.second.m_name;
-		file.m_dependencies = target.second.m_dependencies;
-		file.m_replication_time = copy_g_files[target.second.m_name].m_replication_time;
-		file.m_compilation_time = copy_g_files[target.second.m_name].m_compilation_time;
-		long long int totCompTime = BFS_calcCompilTime(file, 0);
-		std::cerr << target.first << " Deadline: " << target.second.m_deadline << "Tot comp time: " << totCompTime << std::endl;
-		if (totCompTime <= target.second.m_deadline)
-		{
-			std::vector<File> target_dependencies;
-			BFS(file, target_dependencies, true);
-			target_dependencies.push_back(file);
-			fin_target_dependencies.push_back(target_dependencies);
-		}
-	}
+	createVectorOfVectorsOfTargetsDependencies(fin_target_dependencies, g_targets, copy_g_files);
 
 	// std::vector<File> v(fin_target_dependencies.size());
 	// std::copy(fin_target_dependencies.begin(), fin_target_dependencies.end(), v.begin());
