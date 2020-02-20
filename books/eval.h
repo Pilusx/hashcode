@@ -22,7 +22,7 @@ int64_t real_eval() {
         registration_time += library.m_signup_time;
         for(int j = 0; j < number_of_books; j++) {
             IN2 >> book_id;
-            if((registration_time + (j / library.m_book_scanned_per_day) <= D) && scanned_books.find(book_id) == scanned_books.end()) {
+            if((registration_time + (j / library.m_book_scanned_per_day) < D) && scanned_books.find(book_id) == scanned_books.end()) {
                 scanned_books.insert(book_id);
                 score += g_books[book_id].m_score;
             }
