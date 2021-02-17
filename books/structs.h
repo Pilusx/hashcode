@@ -5,6 +5,8 @@
 int B, L, D;
 int A, Y, K;
 
+bool case_A = false, case_B = false, case_C = false, case_D = false, case_E = false, case_F = false;
+
 typedef int BookId;
 typedef int LibraryId;
 
