@@ -1,6 +1,7 @@
 cd /
-cd C:\Repos\hashcode-2020\compiler
+cd C:\Private\Hashcode2021\hashcode-2020\compiler
 g++ main.cpp -o main
+g++ eval.cpp -o eval
 main.exe in/a_example.in out/a_example.out
 eval.exe in/a_example.in out/a_example.out
 
