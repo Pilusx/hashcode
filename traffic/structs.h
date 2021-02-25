@@ -149,27 +149,33 @@ int64_t push_car_intersection(CarId car, Time t) {
         path.streets.pop_front();
         IntersectionId start = g_streets[begin].E;
         g_intersection_state[start][begin].push(car);
+        std::cout << "t=" << t << " car " << car << " waits on " << g_street_names[begin] << " (i=" << start << ")" << std::endl; 
         return 0;
     } else {
-        return g_input_parameters.F + std::min(0, g_input_parameters.D - t);
+        int64_t points = g_input_parameters.F + std::min(0, g_input_parameters.D - t);
+        std::cout << "t=" << t << " car " << car << " finished points=" << points << std::endl;
+        return points;
     }
 }
 
 void push_light_event(int i, int pos, Time t) {
-        Intersection& intersection = g_submission.intersections[i];
-        IntersectionId& id = intersection.lights[pos].street_name;
-        g_lights_on[intersection.i] = id;
-        
-        Event ge;
-        ge.prio = 0; 
-        ge.u.gle.submission_id = i;
-        ge.u.gle.intersection = id;
-        ge.u.gle.pos = pos % intersection.lights.size();
-        ge.T_end = t + intersection.lights[ge.u.gle.pos].T;
-        ge.u.gle.street = intersection.lights[ge.u.gle.pos].street_name;
+    Intersection& intersection = g_submission.intersections[i];
+    pos = pos % intersection.Ei;
+    IntersectionId& id = intersection.lights[pos].street_name;
+    g_lights_on[intersection.i] = id;
 
-        if (ge.T_end <= g_input_parameters.D)
-            g_event_queue.push(ge);
+    std::cout << "t=" << t << " green light on " << g_street_names[intersection.i] << " (i=" << id << ")" << std::endl;
+
+    Event ge;
+    ge.prio = 0; 
+    ge.u.gle.submission_id = i;
+    ge.u.gle.intersection = id;
+    ge.u.gle.pos = pos;
+    ge.T_end = (t == -1 ? 0 : t + intersection.lights[pos].T);
+    ge.u.gle.street = intersection.lights[pos].street_name;
+
+    if (ge.T_end <= g_input_parameters.D)
+        g_event_queue.push(ge);
 }
 
 void pop_car_intersection(IntersectionId i, StreetId s, Time t) {
@@ -178,6 +184,7 @@ void pop_car_intersection(IntersectionId i, StreetId s, Time t) {
         auto it2 = it->second.find(s);
         if(it2 != it->second.end()) {
             CarId c = it2->second.front();
+            std::cout << "t=" << t << " pop car intersection i=" << i << " c=" << c << std::endl; 
             it2->second.pop();
             if(it2->second.empty()) {
                 it->second.erase(it2);
@@ -192,9 +199,11 @@ void pop_car_intersection(IntersectionId i, StreetId s, Time t) {
                 Event e;
                 e.T_end = t + g_streets[next].L;
                 e.prio = 1;
-                e.u.cde.location = g_streets[next].name;
-                if(e.T_end <= g_input_parameters.D)
+                e.u.cde.location = next;
+                if(e.T_end <= g_input_parameters.D) {
+                    std::cout << "t=" << t << " car " << c << " drives on " << g_street_names[next] << " for next (end=" << e.T_end << ")";
                     g_event_queue.push(e);
+                }
             }
         }
     }
@@ -205,6 +214,6 @@ void state_init() {
         push_car_intersection(car, 0);
     }
     for(int i = 0; i < g_submission.A; i++) {
-        push_light_event(i, 0, 0);
+        push_light_event(i, -1, 0);
     }
 }

@@ -25,7 +25,7 @@ int64_t real_eval() {
                 g_event_queue.pop();
                 if(e.prio == 0) { // Gle
                     g_lights_on[e.u.gle.intersection] = e.u.gle.street;
-                    push_light_event(e.u.gle.intersection, e.u.gle.pos + 1, t);
+                    push_light_event(e.u.gle.submission_id, e.u.gle.pos + 1, t);
                 } else if(e.prio == 1) { // cde
                     // Wait
                     score += push_car_intersection(e.u.cde.id, t);
