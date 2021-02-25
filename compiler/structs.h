@@ -23,15 +23,28 @@ struct File
     int m_compilation_time;
     int m_replication_time;
     int m_min_finished_replication_time = INT_MAX;
-    std::set<FileName> m_dependencies;
+    std::vector<FileName> m_dependencies;
+    std::set<FileName> m_dependencies_set;
 
-    // Topological sort
-    std::set<FileName> m_dependencies_duplicate;
-    std::set<FileName> m_dependers;
+    bool operator<(const File &file) 
+    {
+        return m_name < file.m_name;
+    }
+
+    bool operator==(const File &file) 
+    {
+        return m_name == file.m_name;
+    }
+
+    bool operator>(const File &file) 
+    {
+        return m_name > file.m_name;
+    }
 };
 
 struct Target
 {
+    std::vector<FileName> m_dependencies;
     std::string m_name;
     int m_deadline;
     int m_goal_points;

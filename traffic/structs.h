@@ -69,7 +69,7 @@ void read_input() {
         IN >> street.B >> street.E >> name >> street.L;
         street.name = i;
         g_streets[i] = street;
-        g_neighbours[street.B].push_back(i);
+        g_neighbours[street.E].push_back(i);
         g_street_names[i] = name;
         g_street_names_inv[name] = i;
     }
