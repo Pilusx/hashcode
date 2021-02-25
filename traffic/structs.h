@@ -164,7 +164,7 @@ void push_light_event(int i, int pos, Time t) {
         ge.prio = 0; 
         ge.u.gle.submission_id = i;
         ge.u.gle.intersection = id;
-        ge.u.gle.pos = (pos + 1) % intersection.lights.size();
+        ge.u.gle.pos = pos % intersection.lights.size();
         ge.T_end = t + intersection.lights[ge.u.gle.pos].T;
         ge.u.gle.street = intersection.lights[ge.u.gle.pos].street_name;
 
