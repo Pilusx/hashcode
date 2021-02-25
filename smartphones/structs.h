@@ -80,10 +80,11 @@ bool operator!=(const Mountpoint& lhs, const Mountpoint& rhs) {
 
 void act(Action a, Mountpoint& p) {
     switch(a) {
-        case Right: p.x += 1;
-        case Left:  p.x -= 1;
-        case Up:    p.y += 1;
-        case Down:  p.y -= 1;
+        case Right: p.x += 1; break;
+        case Left:  p.x -= 1; break;
+        case Up:    p.y += 1; break;
+        case Down:  p.y -= 1; break;
+        case Wait:            break;
         default: throw "Invalid action";
     }
 }
