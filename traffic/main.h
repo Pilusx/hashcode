@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "io.h"
+#include "structs.h"
 
 void real_main() {
-    OUT << "Example solution" << std::endl;
-    std::string x;
-    while(IN >> x) {
-        OUT << x;
-    }
+    read_input();
+
+    g_submission.A = 0;
+
+    write_output();
 }

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "io.h"
+#include "structs.h"
 
 int64_t real_eval() {
     std::string x1, x2;
