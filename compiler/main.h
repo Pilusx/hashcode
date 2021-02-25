@@ -32,11 +32,10 @@
 // }
 // }
 std::map<FileName, int> dependencies_count;
-
+std::vector<double> parameters;
 // for f mainly
-int Cost(const std::vector<File> &v)
+int Cost(std::vector<File> &v)
 {
-
 	double res = 0;
 
 	// 1 sol f.) 844k
@@ -47,22 +46,25 @@ int Cost(const std::vector<File> &v)
 	// return res;
 
 	// 2 sol f.) 844k (a < b) d.) 33k (Cost(a)>Cost(b))
-	for (File f : v)
-	{
-		res = res + f.m_replication_time;
-	}
-	return res;
-
-	//3 sol  f.) 844k
-	// double w1 = 5;
-	// 	for (File f : v)
+	// for (File f : v)
 	// {
-	// 	double dep_count1 = dependencies_count[f.m_name],
-	// 	   compil_time1 = f.m_compilation_time,
-	// 	   repl_time1 = f.m_replication_time;
-	// 	res = res + (dep_count1 / (w1*compil_time1 + repl_time1));
+	// 	res = res + f.m_replication_time;
 	// }
 	// return res;
+
+	//3 sol  f.) 844k
+	double w1 = parameters[0];
+	double w2 = parameters[1];
+	double w3 = parameters[2];
+	std::cout<<"w1: "<<w1<<std::endl;
+		for (File f : v)
+	{
+		double dep_count1 = dependencies_count[f.m_name],
+		   compil_time1 = f.m_compilation_time,
+		   repl_time1 = f.m_replication_time;
+		res = res + (w1*dep_count1 / (w2*compil_time1 + w3*repl_time1));
+	}
+	return res;
 
 	//2 sol
 	return v.size();
@@ -70,21 +72,24 @@ int Cost(const std::vector<File> &v)
 
 void print_queue(std::vector<std::vector<File>> q, int S)
 {
-
+	std::cout<<"QUEUE"<<std::endl;
+	std::cout<<q.size()<<std::endl;
+	std::cout<<q[0].size()<<std::endl;
+	std::cout<<"QUEUE"<<std::endl;
 	//improves e.g. d.)
 	std::sort(q.begin(), q.end(),
-			  [](const std::vector<File> &a, const std::vector<File> &b) {
+			  []( std::vector<File> &a,  std::vector<File> &b) {
 				  return Cost(a) > Cost(b);
 			  });
-
 	int s = 0;
 	int count = 0;
 	std::set<FileName> done;
 	for (std::vector<File> files : q)
 	{
-		std::cout << files.size() << std::endl;
+		// std::cout << files.size() << std::endl;
 		for (File f : files)
 		{
+			// std::cout<<f.m_compilation_time<<std::endl;
 			if (!done.count(f.m_name))
 			{
 				done.insert(f.m_name);
@@ -111,7 +116,7 @@ void print_queue(std::vector<std::vector<File>> q, int S)
 			}
 		}
 		s++;
-		// std::cout<<s<<std::endl;
+		// std::cout<<s<<std::endl;	
 		// if(s==S)
 		// 	break;
 	}
@@ -500,9 +505,14 @@ void createVectorOfVectorsOfTargetsDependencies(std::vector<std::vector<File>>& 
 		}
 	}
 }
-void real_main()
-{
 
+void real_main(std::vector<double> params)
+{
+	parameters = params;
+	std::cout<<"params:"<<std::endl;
+	for(int i = 0; i < params.size(); i++){
+		std::cout<<params[i]<<std::endl;
+	}
 	std::vector<File> just_files;
 	// IN
 	int C, T, S;
