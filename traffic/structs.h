@@ -41,7 +41,6 @@ std::vector<Path> g_paths;
 struct GreenLight {
     StreetId street_name;
     int T;
-    int T_start;
 };
 
 struct Intersection {
@@ -116,33 +115,96 @@ void write_output() {
 
 typedef int Time;
 
+struct Event {
+    Time T_end;
+    int prio;
+    union {
+        struct CarDriveEvent {
+            CarId id;
+            StreetId location;
+        } cde;
+        struct GreenLightEvent {
+            int submission_id;
+            StreetId street;
+            IntersectionId intersection;
+            int pos; // cycle
+        } gle;
+    } u;
+};
+
 std::unordered_map<IntersectionId, StreetId> g_lights_on;
 std::unordered_map<IntersectionId, std::unordered_map<StreetId, std::queue<CarId>>> g_intersection_state;
-std::unordered_map<StreetId, std::unordered_map<CarId, Time>> g_street_state;
-std::priority_queue<GreenLight> g_light_events;
+std::priority_queue<Event> g_event_queue;
 
-bool operator<(const GreenLight& lhs, const GreenLight& rhs) {
-    return lhs.T_start < rhs.T_start 
-        || (lhs.T_start == rhs.T_start && lhs.street_name < rhs.T_start);    
+bool operator<(const Event& lhs, const Event& rhs) {
+    return lhs.T_end < rhs.T_end
+        || (lhs.T_end == rhs.T_end && lhs.prio < rhs.prio);
 }
 
-void state_init() {
-    for (CarId car = 0; car < g_paths.size(); car++) {
-        Path& path = g_paths[car];
+int64_t push_car_intersection(CarId car, Time t) {
+    Path& path = g_paths[car];
+
+    if(!path.streets.empty()) { 
         StreetId begin = path.streets.front();
         path.streets.pop_front();
         IntersectionId start = g_streets[begin].E;
         g_intersection_state[start][begin].push(car);
+        return 0;
+    } else {
+        return g_input_parameters.F + std::min(0, g_input_parameters.D - t);
     }
+}
 
-    for(int i = 0; i < g_submission.A; i++) {
+void push_light_event(int i, int pos, Time t) {
         Intersection& intersection = g_submission.intersections[i];
-        g_lights_on[intersection.i] = intersection.lights[0].street_name;
-        Time T_current = 0;
-        for(auto & light : intersection.lights) {
-            light.T_start = T_current;
-            T_current += light.T;
-            g_light_events.push(light);
+        IntersectionId& id = intersection.lights[pos].street_name;
+        g_lights_on[intersection.i] = id;
+        
+        Event ge;
+        ge.prio = 0; 
+        ge.u.gle.submission_id = i;
+        ge.u.gle.intersection = id;
+        ge.u.gle.pos = pos % intersection.lights.size();
+        ge.T_end = t + intersection.lights[ge.u.gle.pos].T;
+        ge.u.gle.street = intersection.lights[ge.u.gle.pos].street_name;
+
+        if (ge.T_end <= g_input_parameters.D)
+            g_event_queue.push(ge);
+}
+
+void pop_car_intersection(IntersectionId i, StreetId s, Time t) {
+    auto it = g_intersection_state.find(i);
+    if(it != g_intersection_state.end()) {
+        auto it2 = it->second.find(s);
+        if(it2 != it->second.end()) {
+            CarId c = it2->second.front();
+            it2->second.pop();
+            if(it2->second.empty()) {
+                it->second.erase(it2);
+            }
+
+            // Push to path
+            Path& path = g_paths[c];
+            if(!path.streets.empty()) {
+                StreetId next = path.streets.front();
+                path.streets.pop_front();
+
+                Event e;
+                e.T_end = t + g_streets[next].L;
+                e.prio = 1;
+                e.u.cde.location = g_streets[next].name;
+                if(e.T_end <= g_input_parameters.D)
+                    g_event_queue.push(e);
+            }
         }
+    }
+}
+
+void state_init() {
+    for (CarId car = 0; car < g_paths.size(); car++) {
+        push_car_intersection(car, 0);
+    }
+    for(int i = 0; i < g_submission.A; i++) {
+        push_light_event(i, 0, 0);
     }
 }
