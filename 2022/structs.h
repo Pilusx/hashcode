@@ -19,7 +19,7 @@ std::map<std::string, Project> projects;
 
 struct Assignment {
     std::string project_name;
-    std::vector<std::pair<std::string, std::string>> skill_assignees;
+    std::vector<std::string> skill_assignees;
 };
 
 std::vector<Assignment> assignments;
