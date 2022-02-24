@@ -4,6 +4,7 @@
 int C, P;
 
 struct Contributor {
+    int time = 0;
     std::map<std::string, int> skills;
 };
 
@@ -12,6 +13,7 @@ struct Project {
     int reward;
     int best_before_day;
     std::vector<std::pair<std::string, int>> skill_levels;
+    int sum_skills;
 };
 
 std::map<std::string, Contributor> contributors;
