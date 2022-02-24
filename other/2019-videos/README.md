@@ -1,0 +1,6 @@
+# Run
+```
+cmake .
+make
+./validate
+```

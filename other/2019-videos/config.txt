@@ -1,0 +1,7 @@
+input/streaming
+output
+4
+kittens
+trending_today
+me_at_the_zoo
+videos_worth_spreading
